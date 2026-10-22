@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pecut Prabowo - Modern Interactive Game</title>
+  
+  <!-- Modern Clean Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #08090d;
+      --card-bg: rgba(18, 21, 31, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-red: #ff334b;
+      --accent-orange: #ff7b00;
+      --accent-gold: #ffc400;
+      --text-primary: #f5f5f7;
+      --text-secondary: #8a8d9b;
+      --text-muted: #565968;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      cursor: crosshair;
+    }
+
+    /* Subtle Architectural Background Mesh */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 50% 35%, rgba(255, 51, 75, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 20% 85%, rgba(255, 123, 0, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 85%, rgba(255, 196, 0, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 44px 44px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Canvas Tali Pecut Fisika */
+    #whipCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 40;
+    }
+
+    /* Header Navigasi Sleek Minimalis */
+    header {
+      width: 100%;
+      max-width: 960px;
+      padding: 24px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      box-shadow: 0 0 10px var(--accent-red);
+      animation: pulseLive 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseLive {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: #ffffff;
+    }
+
+    .version-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      background: rgba(255, 196, 0, 0.1);
+      border: 1px solid rgba(255, 196, 0, 0.25);
+      padding: 2px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Scoreboard Modern HUD */
+    .hud-metrics {
+      display: flex;
+      gap: 12px;
+    }
+
+    .metric-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 8px 18px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      min-width: 110px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .metric-box.active {
+      border-color: rgba(255, 51, 75, 0.45);
+      box-shadow: 0 0 25px rgba(255, 51, 75, 0.25);
+    }
+
+    .metric-caption {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .metric-number {
+      font-family: 'Space Grotesk', monospace;
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+
+    .combo-text {
+      color: var(--accent-red);
+    }
+
+    /* Main Stage */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+      z-index: 10;
+      perspective: 1000px;
+    }
+
+    .target-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-style: preserve-3d;
+      transition: transform 0.1s cubic-bezier(0.1, 0.9, 0.2, 1);
+      will-change: transform;
+    }
+
+    .stage-glow {
+      position: absolute;
+      width: 115%;
+      height: 115%;
+      background: radial-gradient(circle, rgba(255, 51, 75, 0.22) 0%, transparent 65%);
+      filter: blur(35px);
+      z-index: -1;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .stage-glow.frenzy {
+      opacity: 1;
+      background: radial-gradient(circle, rgba(255, 51, 75, 0.45) 0%, rgba(255, 123, 0, 0.25) 50%, transparent 75%);
+    }
+
+    .poster-frame {
+      position: relative;
+      border-radius: 18px;
+      padding: 10px;
+      background: linear-gradient(160deg, rgba(32, 36, 50, 0.9) 0%, rgba(15, 18, 27, 0.95) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 
+        0 35px 70px rgba(0, 0, 0, 0.7),
+        0 10px 24px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      cursor: crosshair;
+    }
+
+    .poster-frame.hit {
+      border-color: rgba(255, 51, 75, 0.7);
+      box-shadow: 
+        0 35px 70px rgba(0, 0, 0, 0.7),
+        0 0 45px rgba(255, 51, 75, 0.5),
+        inset 0 0 25px rgba(255, 51, 75, 0.3);
+    }
+
+    .target-image {
+      display: block;
+      width: 300px;
+      max-width: 82vw;
+      height: auto;
+      border-radius: 12px;
+      pointer-events: none;
+      filter: contrast(1.04);
+      transition: filter 0.1s ease;
+    }
+
+    /* Efek Sabetan Pecut (Decal Mark di poster) */
+    .slash-mark {
+      position: absolute;
+      pointer-events: none;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, #ffffff, var(--accent-gold), var(--accent-red), transparent);
+      box-shadow: 0 0 15px var(--accent-red), 0 0 25px var(--accent-gold);
+      transform-origin: center;
+      animation: slashPop 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      z-index: 25;
+    }
+
+    @keyframes slashPop {
+      0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(0.2) scaleY(1.8); }
+      40% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(1.3) scaleY(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(1.5) scaleY(0.2); }
+    }
+
+    /* Efek Teks Pop Seru (+1, ANJING!) */
+    .hit-floater {
+      position: fixed;
+      pointer-events: none;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 1.5rem;
+      z-index: 85;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: floatUpAnim 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.9), 0 0 20px var(--accent-red);
+    }
+
+    .hit-floater .scream {
+      color: var(--accent-gold);
+      font-size: 1.8rem;
+    }
+
+    @keyframes floatUpAnim {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 0) scale(0.6) rotate(-6deg);
+      }
+      25% {
+        opacity: 1;
+        transform: translate(-50%, -24px) scale(1.15) rotate(4deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -80px) scale(0.9) rotate(0deg);
+      }
+    }
+
+    /* Footer Toolbar Modern */
+    footer {
+      width: 100%;
+      max-width: 960px;
+      padding: 20px 30px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .guide-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .guide-highlight {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sleek-button {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.16s ease;
+      cursor: pointer;
+    }
+
+    .sleek-button:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .sleek-button:active {
+      transform: translateY(1px);
+    }
+
+    /* Guncangan Layar Kena Lecutan Keras */
+    .screen-impact {
+      animation: impactQuake 0.18s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    @keyframes impactQuake {
+      10%, 90% { transform: translate3d(-3px, 2px, 0); }
+      20%, 80% { transform: translate3d(4px, -3px, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 3px, 0); }
+      40%, 60% { transform: translate3d(3px, -2px, 0); }
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 16px 20px; }
+      footer { padding: 16px 20px 20px; flex-direction: column; gap: 14px; }
+      .brand-title { font-size: 1rem; }
+      .metric-box { min-width: 90px; padding: 6px 12px; }
+      .metric-number { font-size: 1.3rem; }
+      .target-image { width: 240px; }
+    }
+
+    /* Refined responsive skin */
+    :root {
+      --bg: #11100e;
+      --card-bg: rgba(28, 25, 21, 0.88);
+      --card-border: rgba(238, 221, 190, 0.14);
+      --accent-red: #d94a32;
+      --accent-orange: #e8843a;
+      --accent-gold: #e2b75b;
+      --text-primary: #f6efe4;
+      --text-secondary: #b8aa98;
+      --text-muted: #817566;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 50% 38%, rgba(112, 46, 27, 0.18), transparent 38%),
+        #11100e;
+      cursor: default;
+    }
+
+    .bg-mesh {
+      background:
+        linear-gradient(125deg, rgba(255,255,255,.025), transparent 40%),
+        radial-gradient(circle at 15% 90%, rgba(216, 125, 54, .08), transparent 32%);
+    }
+
+    .bg-grid {
+      opacity: .34;
+      background-size: 56px 56px;
+      background-image:
+        linear-gradient(rgba(238, 221, 190, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(238, 221, 190, .035) 1px, transparent 1px);
+    }
+
+    header, footer {
+      max-width: 1120px;
+    }
+
+    header {
+      padding: 30px 36px;
+      align-items: flex-start;
+    }
+
+    .brand-group {
+      gap: 11px;
+      flex-wrap: wrap;
+      max-width: 310px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent-gold);
+      box-shadow: 0 0 12px rgba(226, 183, 91, .65);
+    }
+
+    .brand-title {
+      font-size: .9rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .version-tag {
+      color: var(--text-secondary);
+      background: rgba(255,255,255,.04);
+      border-color: var(--card-border);
+      font-size: .58rem;
+      letter-spacing: .12em;
+      border-radius: 999px;
+    }
+
+    .hud-metrics {
+      gap: 8px;
+    }
+
+    .metric-box {
+      min-width: 96px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.18);
+    }
+
+    .metric-caption {
+      font-size: .56rem;
+      letter-spacing: .12em;
+    }
+
+    .metric-number {
+      font-size: 1.35rem;
+    }
+
+    main {
+      min-height: 0;
+    }
+
+    .stage-glow {
+      width: 135%;
+      height: 135%;
+      background: radial-gradient(circle, rgba(198, 74, 43, .16), transparent 66%);
+      filter: blur(44px);
+    }
+
+    .poster-frame {
+      padding: 12px;
+      border-radius: 10px;
+      background: #211c17;
+      border-color: rgba(238,221,190,.2);
+      box-shadow: 0 24px 70px rgba(0,0,0,.48), 0 0 0 1px rgba(255,255,255,.025);
+      cursor: crosshair;
+    }
+
+    .target-image {
+      width: min(330px, 70vw);
+      border-radius: 4px;
+      filter: contrast(1.03) saturate(.88);
+    }
+
+    .poster-frame.hit {
+      border-color: rgba(226,183,91,.78);
+      box-shadow: 0 24px 70px rgba(0,0,0,.48), 0 0 0 4px rgba(226,183,91,.11), 0 0 36px rgba(217,74,50,.3);
+    }
+
+    .hit-floater {
+      font-size: 1.1rem;
+      text-shadow: 0 4px 16px rgba(0,0,0,.9);
+    }
+
+    .hit-floater .scream {
+      color: var(--accent-gold);
+      font-size: 1.25rem;
+      letter-spacing: .08em;
+    }
+
+    footer {
+      padding: 20px 36px 30px;
+      gap: 20px;
+    }
+
+    .guide-chip {
+      max-width: 570px;
+      padding: 0;
+      background: none;
+      border: 0;
+      border-radius: 0;
+      line-height: 1.5;
+      font-size: .76rem;
+    }
+
+    .guide-highlight {
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .65rem;
+    }
+
+    .controls-group {
+      gap: 8px;
+    }
+
+    .sleek-button {
+      padding: 10px 13px;
+      border-radius: 7px;
+      color: var(--text-secondary);
+      font-size: .72rem;
+      letter-spacing: .03em;
+    }
+
+    .sleek-button svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+
+    @media (max-width: 600px) {
+      body { min-height: 100svh; }
+      header {
+        padding: 18px 18px 10px;
+        align-items: center;
+      }
+      .brand-group { gap: 8px; max-width: 170px; }
+      .brand-title { font-size: .72rem; letter-spacing: .11em; }
+      .version-tag { display: none; }
+      .hud-metrics { gap: 5px; }
+      .metric-box { min-width: 70px; padding: 7px 9px; }
+      .metric-caption { font-size: .48rem; }
+      .metric-number { font-size: 1.1rem; }
+      .target-image { width: min(270px, 72vw); }
+      .poster-frame { padding: 8px; }
+      footer {
+        padding: 14px 18px 20px;
+        align-items: stretch;
+        gap: 13px;
+      }
+      .guide-chip {
+        display: block;
+        font-size: .68rem;
+        text-align: center;
+      }
+      .guide-highlight { display: block; margin-bottom: 2px; }
+      .controls-group { justify-content: center; }
+      .sleek-button { flex: 1; justify-content: center; }
+    }
+
+    @media (max-height: 650px) and (min-width: 601px) {
+      header { padding-top: 18px; padding-bottom: 10px; }
+      footer { padding-top: 10px; padding-bottom: 18px; }
+      .target-image { width: 270px; }
+    }
+
+    /* Visual direction: quiet editorial palette, not a neon game template. */
+    :root {
+      --bg: #171614;
+      --surface: #211f1b;
+      --surface-soft: rgba(33, 31, 27, .86);
+      --line: rgba(236, 225, 205, .13);
+      --accent: #c59b62;
+      --accent-soft: rgba(197, 155, 98, .16);
+      --accent-red: #c59b62;
+      --accent-orange: #c59b62;
+      --accent-gold: #c59b62;
+      --text-primary: #f0e9de;
+      --text-secondary: #a99d8c;
+      --text-muted: #746b5e;
+    }
+
+    body {
+      background: var(--bg);
+      transition: background .35s ease, color .35s ease;
+    }
+
+    body.theme-paper {
+      --bg: #ded8cd;
+      --surface: #f0ebe2;
+      --surface-soft: rgba(240, 235, 226, .9);
+      --line: rgba(38, 34, 28, .16);
+      --accent: #7e4e32;
+      --accent-soft: rgba(126, 78, 50, .12);
+      --accent-red: #7e4e32;
+      --accent-orange: #7e4e32;
+      --accent-gold: #7e4e32;
+      --text-primary: #26231e;
+      --text-secondary: #665d51;
+      --text-muted: #8a7c6d;
+    }
+
+    body.theme-oxide {
+      --bg: #241918;
+      --surface: #33211d;
+      --surface-soft: rgba(51, 33, 29, .9);
+      --line: rgba(245, 216, 190, .14);
+      --accent: #d38457;
+      --accent-soft: rgba(211, 132, 87, .14);
+      --accent-red: #d38457;
+      --accent-orange: #d38457;
+      --accent-gold: #d38457;
+      --text-primary: #f5e4d7;
+      --text-secondary: #c3a697;
+      --text-muted: #96766a;
+    }
+
+    .bg-mesh {
+      background:
+        radial-gradient(circle at 50% 35%, var(--accent-soft), transparent 42%),
+        linear-gradient(120deg, rgba(255,255,255,.025), transparent 55%);
+      opacity: .9;
+    }
+
+    .bg-grid {
+      opacity: .16;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    }
+
+    .metric-box,
+    .sleek-button {
+      background: var(--surface-soft);
+      border-color: var(--line);
+      box-shadow: none;
+    }
+
+    .metric-box.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .metric-number,
+    .brand-title {
+      color: var(--text-primary);
+    }
+
+    .combo-text,
+    .guide-highlight {
+      color: var(--accent);
+    }
+
+    .poster-frame {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: 0 28px 70px rgba(0,0,0,.28);
+      overflow: visible;
+    }
+
+    .poster-frame.hit {
+      border: 0;
+      box-shadow: 0 28px 70px rgba(0,0,0,.28), 0 0 35px var(--accent-soft);
+    }
+
+    .target-image {
+      width: min(360px, 70vw);
+      border-radius: 2px;
+      filter: contrast(1.04) saturate(.9) sepia(.06);
+    }
+
+    body.theme-paper .target-image {
+      filter: contrast(1.02) saturate(.78) sepia(.12);
+    }
+
+    .stage-glow {
+      background: radial-gradient(circle, var(--accent-soft), transparent 68%);
+    }
+
+    .style-panel {
+      position: fixed;
+      left: 28px;
+      bottom: 28px;
+      z-index: 60;
+      width: 210px;
+      padding: 15px;
+      color: var(--text-primary);
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.16);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .style-panel-title {
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .style-row {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .style-row:last-child { margin-bottom: 0; }
+
+    .style-option {
+      flex: 1;
+      min-height: 31px;
+      padding: 6px 5px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      background: transparent;
+      font: inherit;
+      font-size: .62rem;
+      cursor: pointer;
+      transition: border-color .18s ease, color .18s ease, background .18s ease;
+    }
+
+    .style-option:hover,
+    .style-option.selected {
+      color: var(--text-primary);
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .skin-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin-right: 3px;
+      border-radius: 50%;
+      vertical-align: -1px;
+    }
+
+    .skin-dot.black { background: #171717; border: 1px solid #777; }
+    .skin-dot.brown { background: #70442b; }
+    .skin-dot.red { background: #a94635; }
+
+    @media (max-width: 600px) {
+      .style-panel {
+        left: 14px;
+        right: 14px;
+        bottom: 76px;
+        width: auto;
+        padding: 11px;
+      }
+      .style-panel-title { margin-bottom: 8px; }
+      .style-row { margin-bottom: 8px; }
+      .style-option { min-height: 28px; }
+      .target-image { width: min(290px, 74vw); }
+    }
+
+    /* Single paper theme and compact icon dropdown. */
+    body.theme-paper {
+      --bg: #ded8cd;
+      --surface: #f0ebe2;
+      --surface-soft: rgba(240, 235, 226, .94);
+      --line: rgba(38, 34, 28, .16);
+      --accent: #7e4e32;
+      --accent-soft: rgba(126, 78, 50, .12);
+      --accent-red: #7e4e32;
+      --accent-orange: #7e4e32;
+      --accent-gold: #7e4e32;
+      --text-primary: #26231e;
+      --text-secondary: #665d51;
+      --text-muted: #8a7c6d;
+    }
+
+    body.theme-paper .bg-mesh {
+      background:
+        radial-gradient(circle at 50% 38%, rgba(126,78,50,.1), transparent 42%),
+        linear-gradient(120deg, rgba(255,255,255,.25), transparent 55%);
+    }
+
+    body.theme-paper .bg-grid { opacity: .1; }
+
+    .style-panel {
+      left: auto;
+      right: 28px;
+      bottom: 28px;
+      width: 218px;
+      padding: 0;
+      overflow: hidden;
+      background: var(--surface-soft);
+      border-color: var(--line);
+    }
+
+    .style-toggle {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 8px;
+      padding: 12px 13px;
+      border: 0;
+      color: var(--text-primary);
+      background: transparent;
+      font: inherit;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .style-toggle > svg:first-child { width: 17px; height: 17px; }
+    .style-toggle .chevron { width: 15px; height: 15px; margin-left: auto; transition: transform .18s ease; }
+    .style-panel.open .chevron { transform: rotate(180deg); }
+    .style-menu { padding: 0 13px 13px; }
+    .style-panel-title { margin: 0 0 9px; }
+    .style-option { font-size: .6rem; }
+
+    @media (max-width: 600px) {
+      .style-panel {
+        right: 14px;
+        bottom: 76px;
+        left: auto;
+        width: 205px;
+      }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+      header, footer { padding-left: 24px; padding-right: 24px; }
+      .style-panel { right: 24px; }
+    }
+
+    /* Keep controls in the header so the play area stays clear. */
+    header {
+      align-items: flex-start;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .header-actions .controls-group {
+      gap: 6px;
+    }
+
+    .header-actions .sleek-button {
+      min-height: 44px;
+      padding: 9px 11px;
+    }
+
+    .header-actions .sleek-button span {
+      white-space: nowrap;
+    }
+
+    .style-panel {
+      top: 88px;
+      right: auto;
+      left: 28px;
+      bottom: auto;
+    }
+
+    footer {
+      justify-content: flex-start;
+      padding-top: 14px;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        padding: 16px 16px 8px;
+        gap: 12px;
+      }
+
+      .header-actions {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+      }
+
+      .header-actions .hud-metrics {
+        gap: 4px;
+      }
+
+      .header-actions .metric-box {
+        min-width: 64px;
+        padding: 6px 8px;
+      }
+
+      .header-actions .metric-caption {
+        font-size: .44rem;
+      }
+
+      .header-actions .metric-number {
+        font-size: 1rem;
+      }
+
+      .header-actions .controls-group {
+        width: 100%;
+      }
+
+      .header-actions .sleek-button {
+        min-height: 32px;
+        padding: 6px 8px;
+        font-size: .6rem;
+      }
+
+      .style-panel {
+        top: 76px;
+        left: 16px;
+        width: 196px;
+      }
+
+      footer {
+        padding: 10px 16px 14px;
+      }
+    }
+
+    /* Final layout: quiet icon control, compact bottom actions. */
+    .header-actions {
+      display: block;
+    }
+
+    .header-actions .hud-metrics {
+      display: flex;
+    }
+
+    .header-actions .controls-group {
+      display: none;
+    }
+
+    .style-panel {
+      top: auto;
+      right: 24px;
+      bottom: 86px;
+      left: auto;
+      width: 42px;
+      height: 42px;
+      overflow: visible;
+      border-radius: 50%;
+      z-index: 60;
+    }
+
+    .style-toggle {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .style-toggle > svg:first-child {
+      width: 19px;
+      height: 19px;
+    }
+
+    .style-toggle .chevron,
+    .style-toggle-label {
+      display: none;
+    }
+
+    .style-menu {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 8px);
+      width: 218px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-soft);
+      box-shadow: 0 16px 36px rgba(0,0,0,.16);
+    }
+
+    footer {
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    footer .controls-group {
+      flex-shrink: 0;
+      gap: 6px;
+    }
+
+    footer .sleek-button {
+      min-height: 36px;
+      padding: 7px 10px;
+      font-size: clamp(.62rem, .8vw, .72rem);
+    }
+
+    footer .sleek-button svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    @media (max-width: 700px) {
+      .style-panel {
+        right: 16px;
+        bottom: 70px;
+      }
+
+      footer {
+        padding: 9px 16px 14px;
+        gap: 10px;
+      }
+
+      .guide-chip {
+        min-width: 0;
+        font-size: clamp(.58rem, 2.2vw, .68rem);
+      }
+
+      footer .controls-group {
+        gap: 4px;
+      }
+
+      footer .sleek-button {
+        min-height: 32px;
+        padding: 6px 8px;
+        font-size: .58rem;
+      }
+
+      footer .sleek-button svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    /* Keep the bottom toolbar inside the viewport at browser zoom 100%. */
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+    }
+
+    body {
+      min-height: 100dvh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    header,
+    footer {
+      flex: 0 0 auto;
+    }
+
+    main {
+      min-height: 0;
+      overflow: visible;
+    }
+
+    footer {
+      width: min(1120px, 100%);
+      padding: 10px 36px max(12px, env(safe-area-inset-bottom));
+    }
+
+    footer .guide-chip {
+      min-width: 0;
+    }
+
+    @media (max-height: 760px) and (min-width: 701px) {
+      header {
+        padding-top: 16px;
+        padding-bottom: 8px;
+      }
+
+      footer {
+        padding-top: 6px;
+        padding-bottom: 10px;
+      }
+
+      .guide-chip {
+        font-size: .68rem;
+      }
+
+      footer .sleek-button {
+        min-height: 32px;
+        padding: 6px 9px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      footer {
+        padding: 8px 16px max(12px, env(safe-area-inset-bottom));
+      }
+    }
+
+    /* Final alignment and readable type scale. */
+    header {
+      align-items: center;
+    }
+
+    .brand-group {
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .brand-title {
+      font-size: clamp(.9rem, 1.15vw, 1.08rem);
+      line-height: 1;
+    }
+
+    .version-tag {
+      font-size: .62rem;
+    }
+
+    .header-actions,
+    .hud-metrics {
+      align-items: center;
+    }
+
+    .metric-box {
+      min-width: 108px;
+      min-height: 54px;
+      justify-content: center;
+      padding: 9px 14px;
+    }
+
+    .metric-caption {
+      font-size: .62rem;
+      line-height: 1.1;
+    }
+
+    .metric-number {
+      font-size: 1.42rem;
+      line-height: 1.05;
+    }
+
+    footer {
+      align-items: center;
+    }
+
+    footer .guide-chip {
+      font-size: clamp(.68rem, .85vw, .78rem);
+      line-height: 1.3;
+    }
+
+    footer .sleek-button {
+      min-height: 38px;
+      padding: 8px 12px;
+      font-size: .74rem;
+      line-height: 1;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        align-items: center;
+      }
+
+      .brand-title {
+        font-size: .78rem;
+      }
+
+      .metric-box {
+        min-width: 78px;
+        min-height: 44px;
+        padding: 7px 9px;
+      }
+
+      .metric-caption {
+        font-size: .5rem;
+      }
+
+      .metric-number {
+        font-size: 1.12rem;
+      }
+
+      footer .guide-chip {
+        font-size: .64rem;
+      }
+
+      footer .sleek-button {
+        min-height: 34px;
+        padding: 7px 9px;
+        font-size: .64rem;
+      }
+    }
+  </style>
+</head>
+<body class="theme-paper">
+
+  <div class="bg-mesh"></div>
+  <div class="bg-grid"></div>
+
+  <!-- Canvas Simulasi Fisika Tali Pecut Lentur (Verlet Integration Rope) -->
+  <canvas id="whipCanvas"></canvas>
+
+  <!-- Header & Metrik Permainan -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-title">PECUT PRABOWO</div>
+      <div class="version-tag">MATI PAK</div>
+    </div>
+
+    <div class="header-actions">
+      <div class="hud-metrics">
+        <div class="metric-box" id="scoreCard">
+          <span class="metric-caption">Total Pecut</span>
+          <div class="metric-number"><span id="scoreVal">0</span></div>
+        </div>
+        <div class="metric-box" id="comboCard">
+          <span class="metric-caption">Combo</span>
+          <div class="metric-number combo-text"><span id="comboVal">1</span><span style="font-size: 0.9rem">x</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="style-panel" id="stylePanel" aria-label="Pengaturan pecut">
+    <button class="style-toggle" id="styleToggle" aria-expanded="false" aria-controls="styleMenu" title="Buka pengaturan pecut">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.4"/></svg>
+    </button>
+    <div class="style-menu" id="styleMenu" hidden>
+      <div class="style-panel-title">Pilih skin</div>
+      <div class="style-row" role="group" aria-label="Skin pecut">
+        <button class="style-option selected" data-skin="black"><span class="skin-dot black"></span>Obsidian</button>
+        <button class="style-option" data-skin="brown"><span class="skin-dot brown"></span>Anyam</button>
+        <button class="style-option" data-skin="red"><span class="skin-dot red"></span>Karmin</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Area Tengah / Karakter Target -->
+  <main>
+    <div class="target-wrapper" id="targetWrapper">
+      <div class="stage-glow" id="stageGlow"></div>
+      <div class="poster-frame" id="posterFrame">
+        <!-- Target Gambar dari assets/image.png -->
+        <img src="assets/image.png" alt="Big P Target" class="target-image" id="targetImg">
+      </div>
+    </div>
+  </main>
+
+  <!-- Toolbar Bawah -->
+  <footer>
+    <div class="guide-chip">
+      <span class="guide-highlight">Kontrol pecut</span>
+      <span>Gerakkan pointer, lalu klik atau tap untuk menyabet.</span>
+    </div>
+    <div class="controls-group">
+      <button class="sleek-button" id="soundBtn">
+        <svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+        <span id="soundText">Sound ON</span>
+      </button>
+      <button class="sleek-button" id="resetBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        <span>Reset</span>
+      </button>
+    </div>
+  </footer>
+
+  <script>
+    /* =========================================================================
+       1. FISIKA TALI PECUT VERLET (LETOY, LENTUR, ELASTIS)
+       =========================================================================
+       Tali pecut dihitung menggunakan multi-node Verlet physics.
+       - Memiliki inersia lentur (letoy) saat diayun
+       - Ekor cambuk (cracker/rumbai) meliuk di udara
+       - Saat diklik: sentakan gelombang supersonic melesat ke target!
+    */
+
+    const canvas = document.getElementById('whipCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    function resizeCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * window.devicePixelRatio;
+      canvas.height = height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Konfigurasi ruas tali pecut
+    const SEGMENTS_COUNT = 24;
+    const SEGMENT_DIST = 13;
+    const GRAVITY = 0.28;
+    const AIR_RESISTANCE = 0.92;
+    const RELAXATION_ITER = 10;
+
+    class Node {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.oldX = x;
+        this.oldY = y;
+      }
+    }
+
+    // Buat rantai ruas pecut
+    const nodes = [];
+    const initialX = width * 0.65;
+    const initialY = height * 0.55;
+    for (let i = 0; i < SEGMENTS_COUNT; i++) {
+      nodes.push(new Node(initialX + i * 4, initialY + i * 8));
+    }
+
+    let mouse = {
+      x: initialX,
+      y: initialY,
+      prevX: initialX,
+      prevY: initialY,
+      speed: 0
+    };
+
+    let idleTime = 0;
+    let isStriking = false;
+    let strikeTimer = 0;
+    let strikePoint = { x: 0, y: 0 };
+    let currentWhipSkin = 'black';
+
+    const whipSkins = {
+      black: {
+        style: 'smooth',
+        body: '#171717',
+        bodyAlt: '#2d2d2d',
+        wrap: '#b08a52',
+        tip: '#d8b979',
+        glow: '#c59b62'
+      },
+      brown: {
+        style: 'braided',
+        body: '#321b12',
+        bodyAlt: '#70442b',
+        wrap: '#c39a5b',
+        tip: '#e0bd75',
+        glow: '#c59b62'
+      },
+      red: {
+        style: 'corded',
+        body: '#3b1715',
+        bodyAlt: '#9b4032',
+        wrap: '#d59a65',
+        tip: '#e17b5f',
+        glow: '#d38457'
+      }
+    };
+
+    // Pantau pergerakan mouse
+    window.addEventListener('mousemove', (e) => {
+      const dx = e.clientX - mouse.x;
+      const dy = e.clientY - mouse.y;
+      mouse.speed = Math.hypot(dx, dy);
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        const t = e.touches[0];
+        const dx = t.clientX - mouse.x;
+        const dy = t.clientY - mouse.y;
+        mouse.speed = Math.hypot(dx, dy);
+        mouse.x = t.clientX;
+        mouse.y = t.clientY;
+      }
+    }, { passive: true });
+
+    // Update kalkulasi fisika tali letoy
+    function updateWhipPhysics() {
+      idleTime += 0.04;
+
+      // Pangkal pecut (Handle) mengikuti mouse
+      nodes[0].x = mouse.x;
+      nodes[0].y = mouse.y;
+
+      // Jika sedang mecut (Strike)
+      if (isStriking) {
+        strikeTimer += 0.16;
+        if (strikeTimer >= 1) {
+          isStriking = false;
+          strikeTimer = 0;
+        } else {
+          // Sentakan eksplosif gelombang tali dari pangkal ke ujung
+          const wavePhase = Math.sin(strikeTimer * Math.PI);
+          const dirX = strikePoint.x - mouse.x;
+          const dirY = strikePoint.y - mouse.y;
+          const dist = Math.hypot(dirX, dirY) || 1;
+          const normX = dirX / dist;
+          const normY = dirY / dist;
+
+          // Hentakan kuat merambat ke ujung
+          const flickPower = wavePhase * 55;
+          nodes[4].x += normX * flickPower * 0.7;
+          nodes[4].y += normY * flickPower * 0.7;
+          nodes[12].x += normX * flickPower * 1.2;
+          nodes[12].y += normY * flickPower * 1.2;
+          nodes[SEGMENTS_COUNT - 1].x += normX * flickPower * 2.2;
+          nodes[SEGMENTS_COUNT - 1].y += normY * flickPower * 2.2;
+        }
+      }
+
+      // Hitung kecepatan inersia ruas & gravitasi
+      for (let i = 1; i < SEGMENTS_COUNT; i++) {
+        const node = nodes[i];
+        const vx = (node.x - node.oldX) * AIR_RESISTANCE;
+        const vy = (node.y - node.oldY) * AIR_RESISTANCE;
+
+        node.oldX = node.x;
+        node.oldY = node.y;
+
+        node.x += vx;
+        // Gravitasi + getaran natural tali letoy saat diam (idle swaying)
+        const idleWave = Math.sin(idleTime + i * 0.35) * 0.18;
+        node.y += vy + GRAVITY + idleWave;
+      }
+
+      // Relaksasi Batang (Verlet Distance Relaxation)
+      for (let k = 0; k < RELAXATION_ITER; k++) {
+        for (let i = 0; i < SEGMENTS_COUNT - 1; i++) {
+          const n1 = nodes[i];
+          const n2 = nodes[i + 1];
+
+          const dx = n2.x - n1.x;
+          const dy = n2.y - n1.y;
+          const currentDist = Math.hypot(dx, dy);
+          if (currentDist === 0) continue;
+
+          const diff = (currentDist - SEGMENT_DIST) / currentDist;
+
+          if (i === 0) {
+            // Pangkal gagang terkunci di kursor
+            n2.x -= dx * diff;
+            n2.y -= dy * diff;
+          } else {
+            n1.x += dx * diff * 0.5;
+            n1.y += dy * diff * 0.5;
+            n2.x -= dx * diff * 0.5;
+            n2.y -= dy * diff * 0.5;
+          }
+        }
+      }
+    }
+
+    // Render Visual Tali Pecut di Canvas
+    function renderWhip() {
+      ctx.clearRect(0, 0, width, height);
+      const whip = whipSkins[currentWhipSkin];
+
+      // Hitung arah rotasi gagang
+      const n0 = nodes[0];
+      const n1 = nodes[1];
+      const handleAngle = Math.atan2(n1.y - n0.y, n1.x - n0.x);
+
+      // 1. Gambar Bayangan Lembut di Belakang Tali (Realistic 3D Depth)
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(nodes[0].x + 14, nodes[0].y + 18);
+      for (let i = 1; i < SEGMENTS_COUNT - 1; i++) {
+        const xc = (nodes[i].x + nodes[i + 1].x) / 2 + 14;
+        const yc = (nodes[i].y + nodes[i + 1].y) / 2 + 18;
+        ctx.quadraticCurveTo(nodes[i].x + 14, nodes[i].y + 18, xc, yc);
+      }
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.38)';
+      ctx.lineWidth = 7;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.restore();
+
+      // 2. Gambar Anyaman Tali Pecut dari Pangkal ke Ujung
+      for (let i = 0; i < SEGMENTS_COUNT - 1; i++) {
+        const p1 = nodes[i];
+        const p2 = nodes[i + 1];
+
+        const progress = i / SEGMENTS_COUNT;
+        const thickness = (1 - progress) * 8.5 + 2.4;
+
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+
+        // Gradasi warna kulit pecut (Kulit gelap -> Merah pecut -> Rumbai emas)
+        ctx.strokeStyle = progress < 0.65 ? whip.body : whip.bodyAlt;
+
+        ctx.lineWidth = thickness;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Each skin has its own material detail, not only a different color.
+        if (whip.style === 'braided' && i % 2 === 0 && progress < 0.82) {
+          ctx.beginPath();
+          ctx.arc((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, thickness * 0.4, 0, Math.PI * 2);
+          ctx.fillStyle = whip.wrap;
+          ctx.fill();
+        } else if (whip.style === 'corded' && i % 3 === 0) {
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = whip.wrap;
+          ctx.lineWidth = Math.max(1.2, thickness * .24);
+          ctx.stroke();
+        }
+      }
+
+      // 3. Rumbai Cemeti (Cracker / Tassel) di Ujung Pecut
+      const tip = nodes[SEGMENTS_COUNT - 1];
+      const prevTip = nodes[SEGMENTS_COUNT - 2];
+      const tipAngle = Math.atan2(tip.y - prevTip.y, tip.x - prevTip.x);
+
+      ctx.save();
+      ctx.translate(tip.x, tip.y);
+      ctx.rotate(tipAngle);
+
+      // Material-specific tip: loose tassel, braided knot, or corded fork.
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(14, -8, whip.style === 'smooth' ? 26 : 21, -4);
+      ctx.strokeStyle = whip.tip;
+      ctx.lineWidth = 3.2;
+      ctx.stroke();
+
+      if (whip.style !== 'smooth') {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(12, 10, 24, 7);
+        ctx.strokeStyle = whip.wrap;
+        ctx.lineWidth = 2.6;
+        ctx.stroke();
+      }
+      if (whip.style === 'braided') {
+        ctx.beginPath();
+        ctx.arc(3, 0, 4.5, 0, Math.PI * 2);
+        ctx.strokeStyle = whip.wrap;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Titik lecutan cahaya
+      ctx.beginPath();
+      ctx.arc(0, 0, 3.8, 0, Math.PI * 2);
+      ctx.fillStyle = '#f3eadc';
+      ctx.shadowColor = whip.glow;
+      ctx.shadowBlur = 12;
+      ctx.fill();
+      ctx.restore();
+
+      // 4. Gagang Pecut Kayu & Kuningan (Handle)
+      ctx.save();
+      ctx.translate(n0.x, n0.y);
+      ctx.rotate(handleAngle + Math.PI); // Menghadap berlawanan dari tali
+
+      // Gagang kayu
+      ctx.fillStyle = whip.body;
+      ctx.beginPath();
+      ctx.roundRect(-6, -5, 48, 10, 4);
+      ctx.fill();
+      ctx.strokeStyle = whip.bodyAlt;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Handle detail changes with the selected skin.
+      ctx.fillStyle = whip.wrap;
+      if (whip.style === 'smooth') {
+        ctx.fillRect(8, -5, 4.5, 10);
+        ctx.fillRect(22, -5, 4.5, 10);
+        ctx.fillRect(36, -5, 4.5, 10);
+      } else if (whip.style === 'braided') {
+        ctx.fillRect(7, -5, 7, 10);
+        ctx.fillRect(27, -5, 7, 10);
+      } else {
+        ctx.fillRect(12, -5, 3, 10);
+        ctx.fillRect(32, -5, 3, 10);
+      }
+
+      // Pommel bulat di ujung pegangan
+      ctx.beginPath();
+      ctx.arc(45, 0, 6, 0, Math.PI * 2);
+      ctx.fillStyle = whip.wrap;
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Render loop
+    function animate() {
+      updateWhipPhysics();
+      renderWhip();
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+
+    /* =========================================================================
+       2. AUDIO PLAYER
+       =========================================================================
+       Suara lokal dipisah supaya combo tinggi punya feedback audio tersendiri.
+    */
+
+    let isSoundOn = true;
+    const AUDIO_POOL_SIZE = 8;
+    const audioPool = {
+      strike: [],
+      combo: []
+    };
+    for (let i = 0; i < AUDIO_POOL_SIZE; i++) {
+      const strikeSound = new Audio('assets/sound.mp3');
+      const comboSound = new Audio('assets/bajingan-prabowo.mp3');
+      strikeSound.preload = 'auto';
+      comboSound.preload = 'auto';
+      audioPool.strike.push(strikeSound);
+      audioPool.combo.push(comboSound);
+    }
+    let audioIndex = 0;
+
+    function playWhipSound(isCombo) {
+      if (!isSoundOn) return;
+      try {
+        const pool = isCombo ? audioPool.combo : audioPool.strike;
+        const sound = pool[audioIndex];
+        sound.currentTime = 0;
+        sound.play().catch(err => console.log('Audio autoplay info:', err));
+        audioIndex = (audioIndex + 1) % AUDIO_POOL_SIZE;
+      } catch (e) {
+        console.warn('Audio play error:', e);
+      }
+    }
+
+
+    /* =========================================================================
+       3. SISTEM INTERAKSI PECAT-PECUT, SKOR, & EFEK VISUAL
+       =========================================================================
+    */
+
+    let totalScore = 0;
+    let comboMultiplier = 0;
+    let comboResetTimer = null;
+
+    const scoreVal = document.getElementById('scoreVal');
+    const comboVal = document.getElementById('comboVal');
+    const scoreCard = document.getElementById('scoreCard');
+    const comboCard = document.getElementById('comboCard');
+    const targetWrapper = document.getElementById('targetWrapper');
+    const posterFrame = document.getElementById('posterFrame');
+    const stageGlow = document.getElementById('stageGlow');
+
+    function strikeAction(clientX, clientY) {
+      // 1. Sentak fisika tali pecut ke titik sasaran
+      isStriking = true;
+      strikeTimer = 0;
+      strikePoint.x = clientX;
+      strikePoint.y = clientY;
+
+      // 3. Tambah Skor & Combo
+      totalScore++;
+      comboMultiplier++;
+      playWhipSound(comboMultiplier >= 4);
+      scoreVal.textContent = totalScore.toLocaleString('id-ID');
+      comboVal.textContent = comboMultiplier;
+
+      scoreCard.classList.add('active');
+      setTimeout(() => scoreCard.classList.remove('active'), 180);
+
+      if (comboMultiplier >= 4) {
+        comboCard.classList.add('active');
+        stageGlow.classList.add('frenzy');
+      }
+
+      // Reset timer combo jika jeda > 1.4 detik
+      clearTimeout(comboResetTimer);
+      comboResetTimer = setTimeout(() => {
+        comboMultiplier = 0;
+        comboVal.textContent = '1';
+        comboCard.classList.remove('active');
+        stageGlow.classList.remove('frenzy');
+      }, 1400);
+
+      // 4. Efek 3D Tilt Reaktif pada Poster Sasaran
+      const rect = posterFrame.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const tiltX = (clientY - centerY) / (rect.height / 2) * -15;
+      const tiltY = (clientX - centerX) / (rect.width / 2) * 15;
+
+      targetWrapper.style.transform = `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(0.96)`;
+      posterFrame.classList.add('hit');
+
+      setTimeout(() => {
+        targetWrapper.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale(1)';
+        posterFrame.classList.remove('hit');
+      }, 120);
+
+      // 5. Guncangan Layar jika combo tinggi
+      if (comboMultiplier % 3 === 0) {
+        document.body.classList.remove('screen-impact');
+        void document.body.offsetWidth;
+        document.body.classList.add('screen-impact');
+        setTimeout(() => document.body.classList.remove('screen-impact'), 180);
+      }
+
+      // 6. Buat bekas sabetan pecut menyala (Decal)
+      createSlashDecal(clientX, clientY);
+
+      // 7. Teks Lucu Melayang
+      createFloaterText(clientX, clientY);
+    }
+
+    // Bekas sabetan cambuk menyala
+    function createSlashDecal(x, y) {
+      const slash = document.createElement('div');
+      slash.className = 'slash-mark';
+      slash.style.left = `${x}px`;
+      slash.style.top = `${y}px`;
+      slash.style.width = `${Math.random() * 60 + 80}px`;
+      slash.style.height = `6px`;
+      slash.style.setProperty('--rot', `${Math.random() * 80 - 40}deg`);
+
+      document.body.appendChild(slash);
+      setTimeout(() => slash.remove(), 500);
+    }
+
+    // Teks Seru / Sound Effect Pop
+    const punchyWords = ['CETAS!', 'PECUT!', 'PEDAS!', 'TELAK!'];
+    function createFloaterText(x, y) {
+      const floater = document.createElement('div');
+      floater.className = 'hit-floater';
+
+      if (comboMultiplier >= 4 && comboMultiplier % 2 === 0) {
+        const word = punchyWords[Math.floor(Math.random() * punchyWords.length)];
+        floater.innerHTML = `<span class="scream">${word}</span> <span style="color:#ffc400">+${comboMultiplier * 5}</span>`;
+      } else {
+        floater.innerHTML = `<span>+1</span>`;
+      }
+
+      floater.style.left = `${x}px`;
+      floater.style.top = `${y}px`;
+      document.body.appendChild(floater);
+      setTimeout(() => floater.remove(), 650);
+    }
+
+    // Event Listener Klik & Sentuh
+    window.addEventListener('mousedown', (e) => {
+      if (e.target.closest('button')) return;
+      strikeAction(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('touchstart', (e) => {
+      if (e.target.closest('button')) return;
+      if (e.touches.length > 0) {
+        const t = e.touches[0];
+        mouse.x = t.clientX;
+        mouse.y = t.clientY;
+        strikeAction(t.clientX, t.clientY);
+      }
+    }, { passive: true });
+
+    // Tombol Toggle Sound
+    const soundBtn = document.getElementById('soundBtn');
+    const soundIcon = document.getElementById('soundIcon');
+    const soundText = document.getElementById('soundText');
+
+    soundBtn.addEventListener('click', () => {
+      isSoundOn = !isSoundOn;
+      soundIcon.innerHTML = isSoundOn
+        ? '<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>'
+        : '<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m19 9-5 6M14 9l5 6"/>';
+      soundText.textContent = isSoundOn ? 'Sound ON' : 'Sound OFF';
+    });
+
+    // Tombol Reset Skor
+    const resetBtn = document.getElementById('resetBtn');
+    resetBtn.addEventListener('click', () => {
+      totalScore = 0;
+      comboMultiplier = 0;
+      scoreVal.textContent = '0';
+      comboVal.textContent = '1';
+      comboCard.classList.remove('active');
+      stageGlow.classList.remove('frenzy');
+    });
+
+    // Dropdown pengaturan dan skin material pecut.
+    const stylePanel = document.getElementById('stylePanel');
+    const styleToggle = document.getElementById('styleToggle');
+    const styleMenu = document.getElementById('styleMenu');
+
+    styleToggle.addEventListener('click', () => {
+      const isOpen = stylePanel.classList.toggle('open');
+      styleToggle.setAttribute('aria-expanded', String(isOpen));
+      styleMenu.hidden = !isOpen;
+    });
+
+    document.querySelectorAll('[data-skin]').forEach((button) => {
+      button.addEventListener('click', () => {
+        currentWhipSkin = button.dataset.skin;
+        document.querySelectorAll('[data-skin]').forEach((item) => item.classList.remove('selected'));
+        button.classList.add('selected');
+      });
+    });
+  </script>
+</body>
+</html>

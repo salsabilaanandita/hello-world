@@ -593,9 +593,624 @@
       footer { padding-top: 10px; padding-bottom: 18px; }
       .target-image { width: 270px; }
     }
+
+    /* Visual direction: quiet editorial palette, not a neon game template. */
+    :root {
+      --bg: #171614;
+      --surface: #211f1b;
+      --surface-soft: rgba(33, 31, 27, .86);
+      --line: rgba(236, 225, 205, .13);
+      --accent: #c59b62;
+      --accent-soft: rgba(197, 155, 98, .16);
+      --accent-red: #c59b62;
+      --accent-orange: #c59b62;
+      --accent-gold: #c59b62;
+      --text-primary: #f0e9de;
+      --text-secondary: #a99d8c;
+      --text-muted: #746b5e;
+    }
+
+    body {
+      background: var(--bg);
+      transition: background .35s ease, color .35s ease;
+    }
+
+    body.theme-paper {
+      --bg: #ded8cd;
+      --surface: #f0ebe2;
+      --surface-soft: rgba(240, 235, 226, .9);
+      --line: rgba(38, 34, 28, .16);
+      --accent: #7e4e32;
+      --accent-soft: rgba(126, 78, 50, .12);
+      --accent-red: #7e4e32;
+      --accent-orange: #7e4e32;
+      --accent-gold: #7e4e32;
+      --text-primary: #26231e;
+      --text-secondary: #665d51;
+      --text-muted: #8a7c6d;
+    }
+
+    body.theme-oxide {
+      --bg: #241918;
+      --surface: #33211d;
+      --surface-soft: rgba(51, 33, 29, .9);
+      --line: rgba(245, 216, 190, .14);
+      --accent: #d38457;
+      --accent-soft: rgba(211, 132, 87, .14);
+      --accent-red: #d38457;
+      --accent-orange: #d38457;
+      --accent-gold: #d38457;
+      --text-primary: #f5e4d7;
+      --text-secondary: #c3a697;
+      --text-muted: #96766a;
+    }
+
+    .bg-mesh {
+      background:
+        radial-gradient(circle at 50% 35%, var(--accent-soft), transparent 42%),
+        linear-gradient(120deg, rgba(255,255,255,.025), transparent 55%);
+      opacity: .9;
+    }
+
+    .bg-grid {
+      opacity: .16;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    }
+
+    .metric-box,
+    .sleek-button {
+      background: var(--surface-soft);
+      border-color: var(--line);
+      box-shadow: none;
+    }
+
+    .metric-box.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .metric-number,
+    .brand-title {
+      color: var(--text-primary);
+    }
+
+    .combo-text,
+    .guide-highlight {
+      color: var(--accent);
+    }
+
+    .poster-frame {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: 0 28px 70px rgba(0,0,0,.28);
+      overflow: visible;
+    }
+
+    .poster-frame.hit {
+      border: 0;
+      box-shadow: 0 28px 70px rgba(0,0,0,.28), 0 0 35px var(--accent-soft);
+    }
+
+    .target-image {
+      width: min(360px, 70vw);
+      border-radius: 2px;
+      filter: contrast(1.04) saturate(.9) sepia(.06);
+    }
+
+    body.theme-paper .target-image {
+      filter: contrast(1.02) saturate(.78) sepia(.12);
+    }
+
+    .stage-glow {
+      background: radial-gradient(circle, var(--accent-soft), transparent 68%);
+    }
+
+    .style-panel {
+      position: fixed;
+      left: 28px;
+      bottom: 28px;
+      z-index: 60;
+      width: 210px;
+      padding: 15px;
+      color: var(--text-primary);
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.16);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .style-panel-title {
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .style-row {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .style-row:last-child { margin-bottom: 0; }
+
+    .style-option {
+      flex: 1;
+      min-height: 31px;
+      padding: 6px 5px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      background: transparent;
+      font: inherit;
+      font-size: .62rem;
+      cursor: pointer;
+      transition: border-color .18s ease, color .18s ease, background .18s ease;
+    }
+
+    .style-option:hover,
+    .style-option.selected {
+      color: var(--text-primary);
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .skin-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin-right: 3px;
+      border-radius: 50%;
+      vertical-align: -1px;
+    }
+
+    .skin-dot.black { background: #171717; border: 1px solid #777; }
+    .skin-dot.brown { background: #70442b; }
+    .skin-dot.red { background: #a94635; }
+
+    @media (max-width: 600px) {
+      .style-panel {
+        left: 14px;
+        right: 14px;
+        bottom: 76px;
+        width: auto;
+        padding: 11px;
+      }
+      .style-panel-title { margin-bottom: 8px; }
+      .style-row { margin-bottom: 8px; }
+      .style-option { min-height: 28px; }
+      .target-image { width: min(290px, 74vw); }
+    }
+
+    /* Single paper theme and compact icon dropdown. */
+    body.theme-paper {
+      --bg: #ded8cd;
+      --surface: #f0ebe2;
+      --surface-soft: rgba(240, 235, 226, .94);
+      --line: rgba(38, 34, 28, .16);
+      --accent: #7e4e32;
+      --accent-soft: rgba(126, 78, 50, .12);
+      --accent-red: #7e4e32;
+      --accent-orange: #7e4e32;
+      --accent-gold: #7e4e32;
+      --text-primary: #26231e;
+      --text-secondary: #665d51;
+      --text-muted: #8a7c6d;
+    }
+
+    body.theme-paper .bg-mesh {
+      background:
+        radial-gradient(circle at 50% 38%, rgba(126,78,50,.1), transparent 42%),
+        linear-gradient(120deg, rgba(255,255,255,.25), transparent 55%);
+    }
+
+    body.theme-paper .bg-grid { opacity: .1; }
+
+    .style-panel {
+      left: auto;
+      right: 28px;
+      bottom: 28px;
+      width: 218px;
+      padding: 0;
+      overflow: hidden;
+      background: var(--surface-soft);
+      border-color: var(--line);
+    }
+
+    .style-toggle {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 8px;
+      padding: 12px 13px;
+      border: 0;
+      color: var(--text-primary);
+      background: transparent;
+      font: inherit;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .style-toggle > svg:first-child { width: 17px; height: 17px; }
+    .style-toggle .chevron { width: 15px; height: 15px; margin-left: auto; transition: transform .18s ease; }
+    .style-panel.open .chevron { transform: rotate(180deg); }
+    .style-menu { padding: 0 13px 13px; }
+    .style-panel-title { margin: 0 0 9px; }
+    .style-option { font-size: .6rem; }
+
+    @media (max-width: 600px) {
+      .style-panel {
+        right: 14px;
+        bottom: 76px;
+        left: auto;
+        width: 205px;
+      }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+      header, footer { padding-left: 24px; padding-right: 24px; }
+      .style-panel { right: 24px; }
+    }
+
+    /* Keep controls in the header so the play area stays clear. */
+    header {
+      align-items: flex-start;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+
+    .header-actions .controls-group {
+      gap: 6px;
+    }
+
+    .header-actions .sleek-button {
+      min-height: 44px;
+      padding: 9px 11px;
+    }
+
+    .header-actions .sleek-button span {
+      white-space: nowrap;
+    }
+
+    .style-panel {
+      top: 88px;
+      right: auto;
+      left: 28px;
+      bottom: auto;
+    }
+
+    footer {
+      justify-content: flex-start;
+      padding-top: 14px;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        padding: 16px 16px 8px;
+        gap: 12px;
+      }
+
+      .header-actions {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+      }
+
+      .header-actions .hud-metrics {
+        gap: 4px;
+      }
+
+      .header-actions .metric-box {
+        min-width: 64px;
+        padding: 6px 8px;
+      }
+
+      .header-actions .metric-caption {
+        font-size: .44rem;
+      }
+
+      .header-actions .metric-number {
+        font-size: 1rem;
+      }
+
+      .header-actions .controls-group {
+        width: 100%;
+      }
+
+      .header-actions .sleek-button {
+        min-height: 32px;
+        padding: 6px 8px;
+        font-size: .6rem;
+      }
+
+      .style-panel {
+        top: 76px;
+        left: 16px;
+        width: 196px;
+      }
+
+      footer {
+        padding: 10px 16px 14px;
+      }
+    }
+
+    /* Final layout: quiet icon control, compact bottom actions. */
+    .header-actions {
+      display: block;
+    }
+
+    .header-actions .hud-metrics {
+      display: flex;
+    }
+
+    .header-actions .controls-group {
+      display: none;
+    }
+
+    .style-panel {
+      top: auto;
+      right: 24px;
+      bottom: 86px;
+      left: auto;
+      width: 42px;
+      height: 42px;
+      overflow: visible;
+      border-radius: 50%;
+      z-index: 60;
+    }
+
+    .style-toggle {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .style-toggle > svg:first-child {
+      width: 19px;
+      height: 19px;
+    }
+
+    .style-toggle .chevron,
+    .style-toggle-label {
+      display: none;
+    }
+
+    .style-menu {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 8px);
+      width: 218px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-soft);
+      box-shadow: 0 16px 36px rgba(0,0,0,.16);
+    }
+
+    footer {
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    footer .controls-group {
+      flex-shrink: 0;
+      gap: 6px;
+    }
+
+    footer .sleek-button {
+      min-height: 36px;
+      padding: 7px 10px;
+      font-size: clamp(.62rem, .8vw, .72rem);
+    }
+
+    footer .sleek-button svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    @media (max-width: 700px) {
+      .style-panel {
+        right: 16px;
+        bottom: 70px;
+      }
+
+      footer {
+        padding: 9px 16px 14px;
+        gap: 10px;
+      }
+
+      .guide-chip {
+        min-width: 0;
+        font-size: clamp(.58rem, 2.2vw, .68rem);
+      }
+
+      footer .controls-group {
+        gap: 4px;
+      }
+
+      footer .sleek-button {
+        min-height: 32px;
+        padding: 6px 8px;
+        font-size: .58rem;
+      }
+
+      footer .sleek-button svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    /* Keep the bottom toolbar inside the viewport at browser zoom 100%. */
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+    }
+
+    body {
+      min-height: 100dvh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    header,
+    footer {
+      flex: 0 0 auto;
+    }
+
+    main {
+      min-height: 0;
+      overflow: visible;
+    }
+
+    footer {
+      width: min(1120px, 100%);
+      padding: 10px 36px max(12px, env(safe-area-inset-bottom));
+    }
+
+    footer .guide-chip {
+      min-width: 0;
+    }
+
+    @media (max-height: 760px) and (min-width: 701px) {
+      header {
+        padding-top: 16px;
+        padding-bottom: 8px;
+      }
+
+      footer {
+        padding-top: 6px;
+        padding-bottom: 10px;
+      }
+
+      .guide-chip {
+        font-size: .68rem;
+      }
+
+      footer .sleek-button {
+        min-height: 32px;
+        padding: 6px 9px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      footer {
+        padding: 8px 16px max(12px, env(safe-area-inset-bottom));
+      }
+    }
+
+    /* Final alignment and readable type scale. */
+    header {
+      align-items: center;
+    }
+
+    .brand-group {
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .brand-title {
+      font-size: clamp(.9rem, 1.15vw, 1.08rem);
+      line-height: 1;
+    }
+
+    .version-tag {
+      font-size: .62rem;
+    }
+
+    .header-actions,
+    .hud-metrics {
+      align-items: center;
+    }
+
+    .metric-box {
+      min-width: 108px;
+      min-height: 54px;
+      justify-content: center;
+      padding: 9px 14px;
+    }
+
+    .metric-caption {
+      font-size: .62rem;
+      line-height: 1.1;
+    }
+
+    .metric-number {
+      font-size: 1.42rem;
+      line-height: 1.05;
+    }
+
+    footer {
+      align-items: center;
+    }
+
+    footer .guide-chip {
+      font-size: clamp(.68rem, .85vw, .78rem);
+      line-height: 1.3;
+    }
+
+    footer .sleek-button {
+      min-height: 38px;
+      padding: 8px 12px;
+      font-size: .74rem;
+      line-height: 1;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        align-items: center;
+      }
+
+      .brand-title {
+        font-size: .78rem;
+      }
+
+      .metric-box {
+        min-width: 78px;
+        min-height: 44px;
+        padding: 7px 9px;
+      }
+
+      .metric-caption {
+        font-size: .5rem;
+      }
+
+      .metric-number {
+        font-size: 1.12rem;
+      }
+
+      footer .guide-chip {
+        font-size: .64rem;
+      }
+
+      footer .sleek-button {
+        min-height: 34px;
+        padding: 7px 9px;
+        font-size: .64rem;
+      }
+    }
   </style>
 </head>
-<body>
+<body class="theme-paper">
 
   <div class="bg-mesh"></div>
   <div class="bg-grid"></div>
@@ -610,17 +1225,33 @@
       <div class="version-tag">MATI PAK</div>
     </div>
 
-    <div class="hud-metrics">
-      <div class="metric-box" id="scoreCard">
-        <span class="metric-caption">Total Pecut</span>
-        <div class="metric-number"><span id="scoreVal">0</span></div>
-      </div>
-      <div class="metric-box" id="comboCard">
-        <span class="metric-caption">Combo</span>
-        <div class="metric-number combo-text"><span id="comboVal">1</span><span style="font-size: 0.9rem">x</span></div>
+    <div class="header-actions">
+      <div class="hud-metrics">
+        <div class="metric-box" id="scoreCard">
+          <span class="metric-caption">Total Pecut</span>
+          <div class="metric-number"><span id="scoreVal">0</span></div>
+        </div>
+        <div class="metric-box" id="comboCard">
+          <span class="metric-caption">Combo</span>
+          <div class="metric-number combo-text"><span id="comboVal">1</span><span style="font-size: 0.9rem">x</span></div>
+        </div>
       </div>
     </div>
   </header>
+
+  <section class="style-panel" id="stylePanel" aria-label="Pengaturan pecut">
+    <button class="style-toggle" id="styleToggle" aria-expanded="false" aria-controls="styleMenu" title="Buka pengaturan pecut">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.4"/></svg>
+    </button>
+    <div class="style-menu" id="styleMenu" hidden>
+      <div class="style-panel-title">Pilih skin</div>
+      <div class="style-row" role="group" aria-label="Skin pecut">
+        <button class="style-option selected" data-skin="black"><span class="skin-dot black"></span>Obsidian</button>
+        <button class="style-option" data-skin="brown"><span class="skin-dot brown"></span>Anyam</button>
+        <button class="style-option" data-skin="red"><span class="skin-dot red"></span>Karmin</button>
+      </div>
+    </div>
+  </section>
 
   <!-- Area Tengah / Karakter Target -->
   <main>
@@ -639,7 +1270,6 @@
       <span class="guide-highlight">Kontrol pecut</span>
       <span>Gerakkan pointer, lalu klik atau tap untuk menyabet.</span>
     </div>
-
     <div class="controls-group">
       <button class="sleek-button" id="soundBtn">
         <svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
@@ -713,6 +1343,34 @@
     let isStriking = false;
     let strikeTimer = 0;
     let strikePoint = { x: 0, y: 0 };
+    let currentWhipSkin = 'black';
+
+    const whipSkins = {
+      black: {
+        style: 'smooth',
+        body: '#171717',
+        bodyAlt: '#2d2d2d',
+        wrap: '#b08a52',
+        tip: '#d8b979',
+        glow: '#c59b62'
+      },
+      brown: {
+        style: 'braided',
+        body: '#321b12',
+        bodyAlt: '#70442b',
+        wrap: '#c39a5b',
+        tip: '#e0bd75',
+        glow: '#c59b62'
+      },
+      red: {
+        style: 'corded',
+        body: '#3b1715',
+        bodyAlt: '#9b4032',
+        wrap: '#d59a65',
+        tip: '#e17b5f',
+        glow: '#d38457'
+      }
+    };
 
     // Pantau pergerakan mouse
     window.addEventListener('mousemove', (e) => {
@@ -813,6 +1471,7 @@
     // Render Visual Tali Pecut di Canvas
     function renderWhip() {
       ctx.clearRect(0, 0, width, height);
+      const whip = whipSkins[currentWhipSkin];
 
       // Hitung arah rotasi gagang
       const n0 = nodes[0];
@@ -847,24 +1506,25 @@
         ctx.lineTo(p2.x, p2.y);
 
         // Gradasi warna kulit pecut (Kulit gelap -> Merah pecut -> Rumbai emas)
-        if (progress < 0.65) {
-          ctx.strokeStyle = '#32160d';
-        } else if (progress < 0.88) {
-          ctx.strokeStyle = '#8c1f11';
-        } else {
-          ctx.strokeStyle = '#e62e1b';
-        }
+        ctx.strokeStyle = progress < 0.65 ? whip.body : whip.bodyAlt;
 
         ctx.lineWidth = thickness;
         ctx.lineCap = 'round';
         ctx.stroke();
 
-        // Pola lilitan anyaman kulit selang-seling
-        if (i % 2 === 0 && progress < 0.82) {
+        // Each skin has its own material detail, not only a different color.
+        if (whip.style === 'braided' && i % 2 === 0 && progress < 0.82) {
           ctx.beginPath();
-          ctx.arc((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, thickness * 0.36, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffc400';
+          ctx.arc((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, thickness * 0.4, 0, Math.PI * 2);
+          ctx.fillStyle = whip.wrap;
           ctx.fill();
+        } else if (whip.style === 'corded' && i % 3 === 0) {
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = whip.wrap;
+          ctx.lineWidth = Math.max(1.2, thickness * .24);
+          ctx.stroke();
         }
       }
 
@@ -877,27 +1537,35 @@
       ctx.translate(tip.x, tip.y);
       ctx.rotate(tipAngle);
 
-      // Helai rumbai merah
+      // Material-specific tip: loose tassel, braided knot, or corded fork.
       ctx.beginPath();
       ctx.moveTo(0, 0);
-      ctx.quadraticCurveTo(14, -8, 26, -4);
-      ctx.strokeStyle = '#ff334b';
+      ctx.quadraticCurveTo(14, -8, whip.style === 'smooth' ? 26 : 21, -4);
+      ctx.strokeStyle = whip.tip;
       ctx.lineWidth = 3.2;
       ctx.stroke();
 
-      // Helai rumbai emas
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.quadraticCurveTo(12, 10, 24, 7);
-      ctx.strokeStyle = '#ffc400';
-      ctx.lineWidth = 2.6;
-      ctx.stroke();
+      if (whip.style !== 'smooth') {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(12, 10, 24, 7);
+        ctx.strokeStyle = whip.wrap;
+        ctx.lineWidth = 2.6;
+        ctx.stroke();
+      }
+      if (whip.style === 'braided') {
+        ctx.beginPath();
+        ctx.arc(3, 0, 4.5, 0, Math.PI * 2);
+        ctx.strokeStyle = whip.wrap;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
 
       // Titik lecutan cahaya
       ctx.beginPath();
       ctx.arc(0, 0, 3.8, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.shadowColor = '#ff334b';
+      ctx.fillStyle = '#f3eadc';
+      ctx.shadowColor = whip.glow;
       ctx.shadowBlur = 12;
       ctx.fill();
       ctx.restore();
@@ -908,24 +1576,32 @@
       ctx.rotate(handleAngle + Math.PI); // Menghadap berlawanan dari tali
 
       // Gagang kayu
-      ctx.fillStyle = '#170b06';
+      ctx.fillStyle = whip.body;
       ctx.beginPath();
       ctx.roundRect(-6, -5, 48, 10, 4);
       ctx.fill();
-      ctx.strokeStyle = '#4a2414';
+      ctx.strokeStyle = whip.bodyAlt;
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Cincin kuningan
-      ctx.fillStyle = '#ffc400';
-      ctx.fillRect(8, -5, 4.5, 10);
-      ctx.fillRect(22, -5, 4.5, 10);
-      ctx.fillRect(36, -5, 4.5, 10);
+      // Handle detail changes with the selected skin.
+      ctx.fillStyle = whip.wrap;
+      if (whip.style === 'smooth') {
+        ctx.fillRect(8, -5, 4.5, 10);
+        ctx.fillRect(22, -5, 4.5, 10);
+        ctx.fillRect(36, -5, 4.5, 10);
+      } else if (whip.style === 'braided') {
+        ctx.fillRect(7, -5, 7, 10);
+        ctx.fillRect(27, -5, 7, 10);
+      } else {
+        ctx.fillRect(12, -5, 3, 10);
+        ctx.fillRect(32, -5, 3, 10);
+      }
 
       // Pommel bulat di ujung pegangan
       ctx.beginPath();
       ctx.arc(45, 0, 6, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffc400';
+      ctx.fillStyle = whip.wrap;
       ctx.fill();
 
       ctx.restore();
@@ -1125,6 +1801,25 @@
       comboVal.textContent = '1';
       comboCard.classList.remove('active');
       stageGlow.classList.remove('frenzy');
+    });
+
+    // Dropdown pengaturan dan skin material pecut.
+    const stylePanel = document.getElementById('stylePanel');
+    const styleToggle = document.getElementById('styleToggle');
+    const styleMenu = document.getElementById('styleMenu');
+
+    styleToggle.addEventListener('click', () => {
+      const isOpen = stylePanel.classList.toggle('open');
+      styleToggle.setAttribute('aria-expanded', String(isOpen));
+      styleMenu.hidden = !isOpen;
+    });
+
+    document.querySelectorAll('[data-skin]').forEach((button) => {
+      button.addEventListener('click', () => {
+        currentWhipSkin = button.dataset.skin;
+        document.querySelectorAll('[data-skin]').forEach((item) => item.classList.remove('selected'));
+        button.classList.add('selected');
+      });
     });
   </script>
 </body>
